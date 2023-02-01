@@ -12,7 +12,8 @@ env:
     CHART_PATH: ./generic
     CLUSTER_NAME: atera-k8s-demo
     CLUSTER_RESOURCE_GROUP: atera-k8s-demo
-    CONTAINER_NAME: image-workflow-1675264887062
+    CONTAINER_NAME: generic-python
+    CONTAINER_NAME_VERSION: 1
 jobs:
     buildImage:
         permissions:
@@ -28,7 +29,7 @@ jobs:
                 subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
                 tenant-id: ${{ secrets.AZURE_TENANT_ID }}
             - name: Build and push image to ACR
-              run: az acr build --image ${{ env.CONTAINER_NAME }}:${{ github.sha }} --registry ${{ env.AZURE_CONTAINER_REGISTRY }} -g ${{ env.ACR_RESOURCE_GROUP }} -f ./Dockerfike ./
+              run: az acr build --image ${{ env.CONTAINER_NAME }}:${{ env.CONTAINER_NAME_VERSION }} --registry ${{ env.AZURE_CONTAINER_REGISTRY }} -g ${{ env.ACR_RESOURCE_GROUP }} -f ./Dockerfike ./
     deploy:
         permissions:
             actions: read
@@ -51,4 +52,5 @@ jobs:
                 cluster-name: ${{ env.CLUSTER_NAME }}
                 resource-group: ${{ env.CLUSTER_RESOURCE_GROUP }}
             - name: Deploy application
-              run: helm upgrade --wait -i -f ${{ env.CHART_OVERRIDE_PATH }}  automated-deployment ${{ env.CHART_PATH }}
+              run: helm registry login ${{ env.AZURE_CONTAINER_REGISTRY }} --username ${{ secrets.USERNAME }} --password ${{ secrets.ACR_PASSWORD }}
+#               run: helm upgrade --wait -i -f ${{ env.CHART_OVERRIDE_PATH }}  automated-deployment ${{ env.CHART_PATH }}
