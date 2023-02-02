@@ -30,7 +30,7 @@ jobs:
                 tenant-id: ${{ secrets.AZURE_TENANT_ID }}
             - name: Build and push image to ACR
               run: az acr build --image ${{ env.CONTAINER_NAME }}:${{ env.CONTAINER_NAME_VERSION }} --registry ${{ env.AZURE_CONTAINER_REGISTRY }} -g ${{ env.ACR_RESOURCE_GROUP }} -f ./Dockerfike ./
-    deploy:
+    helm_build_and_push:
         permissions:
             actions: read
             contents: read
@@ -46,11 +46,18 @@ jobs:
                 client-id: ${{ secrets.AZURE_CLIENT_ID }}
                 subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
                 tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-            - uses: azure/aks-set-context@v3
-              name: Get K8s context
-              with:
-                cluster-name: ${{ env.CLUSTER_NAME }}
-                resource-group: ${{ env.CLUSTER_RESOURCE_GROUP }}
-            - name: Deploy application
+            - name: helm package 
+              run: helm package generic
+            - name: helm package 
               run: helm registry login ${{ secrets.URL }} --username ${{ secrets.USER_NAME }} --password ${{ secrets.ACR_PASSWORD }}
+            - name: helm package 
+              run: helm push generic-0.1.0.tgz ${{ secrets.CHART_URL }}            
+              
+#             - uses: azure/aks-set-context@v3
+#               name: Get K8s context
+#               with:
+#                 cluster-name: ${{ env.CLUSTER_NAME }}
+#                 resource-group: ${{ env.CLUSTER_RESOURCE_GROUP }}
+#            - name: helm package 
+#              run: helm registry login ${{ secrets.URL }} --username ${{ secrets.USER_NAME }} --password ${{ secrets.ACR_PASSWORD }}
 #               run: helm upgrade --wait -i -f ${{ env.CHART_OVERRIDE_PATH }}  automated-deployment ${{ env.CHART_PATH }}
