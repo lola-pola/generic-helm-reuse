@@ -48,9 +48,9 @@ jobs:
                 tenant-id: ${{ secrets.AZURE_TENANT_ID }}
             - name: helm package 
               run: helm package generic
-            - name: helm package 
+            - name: helm login 
               run: helm registry login ${{ secrets.URL }} --username ${{ secrets.USER_NAME }} --password ${{ secrets.ACR_PASSWORD }}
-            - name: helm package 
+            - name: helm push 
               run: helm push generic-0.1.0.tgz ${{ secrets.CHART_URL }}            
               
 #             - uses: azure/aks-set-context@v3
