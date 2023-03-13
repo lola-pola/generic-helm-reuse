@@ -8,11 +8,13 @@ env:
     ACR_RESOURCE_GROUP: elhays
     AZURE_CONTAINER_REGISTRY: databasecni
     CHART_OVERRIDE_PATH: ./generic/values.yaml
-    CHART_OVERRIDES: image.repository=databasecni.azurecr.io/generic-helm-reuse,image.tag=${{ github.sha }}
+    CHART_OVERRIDES: image.repository=databasecni.azurecr.io/generic-helm-reuse,image.tag=${{github.run_number}}
     CHART_PATH: ./generic
     CLUSTER_NAME: database-cni
     CLUSTER_RESOURCE_GROUP: elhays
     CONTAINER_NAME: generic-helm-reuse
+    HELM_ARC_URL: databasecni.azurecr.io
+    CONTAINER_NAME_VERSION: ${{github.run_number}}
 jobs:
     buildImage:
         permissions:
@@ -27,8 +29,23 @@ jobs:
                 client-id: ${{ secrets.AZURE_CLIENT_ID }}
                 subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
                 tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+                
+                
+            - name: helm login 
+              run: helm registry login ${{ env.HELM_ARC_URL }} --password ${{ secrets.HELM_ACR_SEC }} --username ${{ secrets.HELM_ACR_ACCESS }}
+            - name: bump version chart
+              run: "sed -i 's/version: [0-9].[0-9].[0-9]/version: '${{ env.CONTAINER_NAME_VERSION }}'/g' generic-helm-reuse/Chart.yaml"
+            - name: helm dep build . && helm package 
+              run: helm dep build generic-helm-reuse && helm package generic-helm-reuse 
+            - name: helm push 
+              run: helm push generic-helm-reuse-${{ env.CONTAINER_NAME_VERSION }}.tgz oci://${{ secrets.HELM_ARC_URL }}/helm 
+            - name: Build and push image to ${{ secrets.HELM_ARC_URL }}
+                
+                
+                
+                
             - name: Build and push image to ACR
-              run: az acr build --image ${{ env.CONTAINER_NAME }}:${{ github.sha }} --registry ${{ env.AZURE_CONTAINER_REGISTRY }} -g ${{ env.ACR_RESOURCE_GROUP }} -f ./Dockerfike ./
+              run: az acr build --image ${{ env.CONTAINER_NAME }}:${{ env.CONTAINER_NAME_VERSION }} --registry ${{ env.AZURE_CONTAINER_REGISTRY }} -g ${{ env.ACR_RESOURCE_GROUP }} -f ./Dockerfike ./
     deploy:
         permissions:
             actions: read
@@ -57,4 +74,4 @@ jobs:
                 resource-group: ${{ env.CLUSTER_RESOURCE_GROUP }}
                 use-kubelogin: "true"
             - name: Deploy application
-              run: helm upgrade --wait -i -f ${{ env.CHART_OVERRIDE_PATH }} --set ${{ env.CHART_OVERRIDES }} automated-deployment ${{ env.CHART_PATH }}
+              run: helm upgrade --wait -i -f ${{ env.CHART_OVERRIDE_PATH }} --set ${{ env.CHART_OVERRIDES }} generic-helm-reuse ${{ env.CHART_PATH }}
