@@ -9,7 +9,7 @@ env:
     AZURE_CONTAINER_REGISTRY: databasecni
     CHART_OVERRIDE_PATH: ./generic/values.yaml
     CHART_OVERRIDES: image.repository=databasecni.azurecr.io/generic-helm-reuse,image.tag=${{github.run_number}}
-    CHART_PATH: ./generic
+    CHART_PATH: ./generic-helm-reuse
     CLUSTER_NAME: database-cni
     CLUSTER_RESOURCE_GROUP: elhays
     CONTAINER_NAME: generic-helm-reuse
