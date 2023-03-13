@@ -39,7 +39,6 @@ jobs:
               run: helm dep build generic-helm-reuse && helm package generic-helm-reuse 
             - name: helm push 
               run: helm push generic-helm-reuse-${{ env.CONTAINER_NAME_VERSION }}.tgz oci://${{ secrets.HELM_ARC_URL }}/helm 
-            - name: Build and push image to ${{ secrets.HELM_ARC_URL }}
                 
                 
                 
