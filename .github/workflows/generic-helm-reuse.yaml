@@ -38,7 +38,7 @@ jobs:
             - name: helm dep build . && helm package 
               run: helm dep build generic-helm-reuse && helm package generic-helm-reuse 
             - name: helm push 
-              run: helm push generic-helm-reuse-${{ env.CONTAINER_NAME_VERSION }}.tgz oci://${{ env.HELM_ARC_URL }}/helm 
+              run: helm push generic-helm-reuse-0.0.${{ env.CONTAINER_NAME_VERSION }}.tgz oci://${{ env.HELM_ARC_URL }}/helm 
                 
                 
                 
