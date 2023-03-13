@@ -34,7 +34,7 @@ jobs:
             - name: helm login 
               run: helm registry login ${{ env.HELM_ARC_URL }} --password ${{ secrets.HELM_ACR_SEC }} --username ${{ secrets.HELM_ACR_ACCESS }}
             - name: bump version chart
-              run: "sed -i 's/version: [0-9].[0-9].[0-9]/version: '${{ env.CONTAINER_NAME_VERSION }}'/g' generic-helm-reuse/Chart.yaml"
+              run: "sed -i 's/version: [0-9].[0-9].[0-9]/version: 0.0.'${{ env.CONTAINER_NAME_VERSION }}'/g' generic-helm-reuse/Chart.yaml"
             - name: helm dep build . && helm package 
               run: helm dep build generic-helm-reuse && helm package generic-helm-reuse 
             - name: helm push 
