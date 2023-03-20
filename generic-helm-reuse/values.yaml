@@ -38,6 +38,7 @@ securityContext: {}
 
 service:
   type: ClusterIP
+  dnsName: elhay-generic-chart-example
   port: 80
 
 ingress:

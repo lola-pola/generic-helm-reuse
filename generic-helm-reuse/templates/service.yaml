@@ -4,6 +4,8 @@ metadata:
   name: {{ include "generic-helm-reuse.fullname" . }}
   labels:
     {{- include "generic-helm-reuse.labels" . | nindent 4 }}
+  annotations:
+    service.beta.kubernetes.io/azure-dns-label-name: {{ .Values.service.dnsName }}    
 spec:
   type: {{ .Values.service.type }}
   ports:
